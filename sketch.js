@@ -22,23 +22,17 @@ function dist(x1, y1, x2, y2){
   return sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1));
 }
 
-function potential_vec(x, y){
-  let pot_vec = [0, 0];
+function get_potential(x, y){
+  let res = 0;
   for(let c of charges){
-    angleMode(RADIANS);
-    let mag = 20*c.ch/dist(x, y, c.x, c.y);
-    let ang = atan2(c.y - y, c.x - x);
-    if(ang < 0){
-      ang += 2*Math.PI;
-    }
-    pot_vec = [pot_vec[0] + cos(ang)*mag, pot_vec[1] + sin(ang)*mag];
+    res += 20*c.ch/dist(x, y, c.x, c.y);
   }
-  return pot_vec;
+  return res;
 }
 
-function get_mag(x, y){
-  return sqrt(x*x + y*y);
-}
+// function get_mag(x, y){
+//   return sqrt(x*x + y*y);
+// }
 
 function mouseDragged(){
   for(let i = 0; i < charges.length; i++){
@@ -60,26 +54,23 @@ function mouseReleased(){
 
 function mousePressed(){
   let surface = [[mouseX, mouseY]];
-  let const_vec = potential_vec(surface[0][0], surface[0][1]);
-  let const_mag = mag(const_vec[0], const_vec[1]);
+  let const_pot = get_potential(surface[0][0], surface[0][1]);
   angleMode(DEGREES);
-  // while(surface.length == 1 || !(abs(surface[surface.length-1][0] - surface[0][0]) < 0.01 && abs(surface[surface.length-1][1] - surface[0][1]) < 0.01)){
-  for(let i = 0; i < 10000; i++){
+  while(surface.length == 1 || !(abs(surface[surface.length-1][0] - surface[0][0]) < 0.1 && abs(surface[surface.length-1][1] - surface[0][1]) < 0.1)){
     let best_pt = [];
     let best_mag = -1;
     for(let j = 0; j < 360; j++){
-      let new_pt = [surface[surface.length-1][0] + 2*cos(j), surface[surface.length-1][1] + 2*sin(j)];
-      let pot_vec = potential_vec(new_pt[0], new_pt[1]);
-      let vec_mag = mag(pot_vec[0], pot_vec[1]);
+      let new_pt = [surface[surface.length-1][0] + 5*cos(j), surface[surface.length-1][1] + 5*sin(j)];
+      let pot = get_potential(new_pt[0], new_pt[1]);
       let ok = true;
       for(let k = 1; k < 10; k++){
         if(surface.length >= k && abs(surface[surface.length - k][0] - new_pt[0]) < 0.1 && abs(surface[surface.length - k][1] - new_pt[1]) < 0.1){
           ok = false;
         }
       }
-      if((best_mag == -1 || abs(vec_mag - const_mag) < best_mag) && abs(vec_mag - const_mag) < 0.1 && ok){
+      if((best_mag == -1 || abs(pot - const_pot) < best_mag) && abs(pot - const_pot) < 0.1 && ok){
         best_pt = [new_pt[0], new_pt[1]];
-        best_mag = abs(vec_mag - const_mag);
+        best_mag = abs(pot - const_pot);
       }
     }
     append(surface, best_pt);
@@ -94,6 +85,17 @@ function mousePressed(){
 
 function draw() {
   background("#000000");
+
+  let gridsize = 40*windowHeight/1120;
+  for(let i = 0; i < windowWidth; i += gridsize){
+    stroke(100);
+    line(i, 0, i, windowHeight);
+  }
+
+  for(let i = 0; i < windowHeight; i += gridsize){
+    stroke(100);
+    line(0, i, windowWidth, i);
+  }
 
   for(let c of charges){
     let t = String(c.ch);
@@ -123,10 +125,11 @@ function draw() {
   stroke('white');
   strokeWeight(1);
   for(let j = 0; j < surfaces.length; j++){
+    noFill();
+    beginShape();
     for(let i = 0; i < surfaces[j].length-1; i++){
-      beginShape();
-      line(surfaces[j][i][0], surfaces[j][i][1], surfaces[j][i+1][0], surfaces[j][i+1][1]);
-      endShape();
+      curveVertex(surfaces[j][i][0], surfaces[j][i][1]);
     }
+    endShape();
   }
 }
