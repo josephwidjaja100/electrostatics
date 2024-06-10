@@ -4,8 +4,9 @@ console.log(windowWidth, windowHeight);
 let widthmult = windowWidth/1991;
 let heightmult = windowHeight/1120;
 let charges = [
-  {x:windowWidth*2/5, y:windowHeight/2, ch:1},
-  {x:windowWidth*3/5, y:windowHeight/3, ch:2},
+  {x:windowWidth*2/5, y:windowHeight*2/3, ch:1},
+  {x:windowWidth*3/5, y:windowHeight/3, ch:-2},
+  {x:windowWidth/2, y: windowHeight/2, ch:3}
 ];
 let charge_diam = 50*heightmult; 
 let surfaces = [];
@@ -88,12 +89,12 @@ function draw() {
 
   let gridsize = 40*windowHeight/1120;
   for(let i = 0; i < windowWidth; i += gridsize){
-    stroke(100);
+    stroke(75);
     line(i, 0, i, windowHeight);
   }
 
   for(let i = 0; i < windowHeight; i += gridsize){
-    stroke(100);
+    stroke(75);
     line(0, i, windowWidth, i);
   }
 
@@ -124,11 +125,11 @@ function draw() {
 
   stroke('white');
   strokeWeight(1);
-  for(let j = 0; j < surfaces.length; j++){
+  for(let surface of surfaces){
     noFill();
     beginShape();
-    for(let i = 0; i < surfaces[j].length-1; i++){
-      curveVertex(surfaces[j][i][0], surfaces[j][i][1]);
+    for(let i = 0; i < surface.length-1; i++){
+      curveVertex(surface[i][0], surface[i][1]);
     }
     endShape();
   }
